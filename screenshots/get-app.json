@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/get-app",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Helix",
+      "hasCanvas": false,
+      "bodyTextLen": 2757,
+      "bodyTextHash": "f2284c6cd2d2b9a1caca7a43457de57798e8ea87a3e182f74678dbf5d0ca9af4",
+      "bodyTextPrefix": "Helix Sign in PHONE · WINDOWS · OFFLINE Run Helix on your phone,",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/get-app.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Helix",
+      "hasCanvas": false,
+      "bodyTextLen": 2757,
+      "bodyTextHash": "f2284c6cd2d2b9a1caca7a43457de57798e8ea87a3e182f74678dbf5d0ca9af4",
+      "bodyTextPrefix": "Helix Sign in PHONE · WINDOWS · OFFLINE Run Helix on your phone,",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/get-app-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/get-app.json"
+}

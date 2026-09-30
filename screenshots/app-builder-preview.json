@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Helix",
+      "hasCanvas": false,
+      "bodyTextLen": 1765,
+      "bodyTextHash": "7dcae005ce1f8c6cfa266391a300381a6d774d13d54a55fb4e0d8c8e9c3c4c61",
+      "bodyTextPrefix": "Helix Phone & offline Sign in Open your desk FOR IT FIRMS The de",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Helix",
+      "hasCanvas": false,
+      "bodyTextLen": 1741,
+      "bodyTextHash": "c729fb3df8e9df3474ca1413991e3d68ccefa9cc2d3619f40f62174054654393",
+      "bodyTextPrefix": "Helix Open your desk FOR IT FIRMS The desk that holds clients, t",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-preview.json"
+}

@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { BookOpen, Home, Menu, Plus, Ticket } from "lucide-react";
+import { BookOpen, Home, Menu, Plus, Smartphone, Ticket } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { UserButton } from "@/lib/auth/gates";
 import type { Actor } from "@/lib/desk/types";
@@ -7,11 +7,12 @@ import { cn } from "@/lib/utils";
 import { HelixWordmark } from "@/components/helix-mark";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { OfflineBar } from "@/components/connectivity";
 
 const NAV = [
   { to: "/portal", label: "Home", icon: Home, exact: true },
-  { to: "/portal/tickets", label: "Tickets", icon: Ticket },
-  { to: "/portal/knowledge", label: "Help", icon: BookOpen },
+  { to: "/portal/tickets", label: "Tickets", icon: Ticket, exact: false },
+  { to: "/portal/knowledge", label: "Help", icon: BookOpen, exact: false },
 ] as const;
 
 export function PortalShell({ actor, children }: { actor: Actor; children: ReactNode }) {
@@ -71,8 +72,9 @@ export function PortalShell({ actor, children }: { actor: Actor; children: React
           <UserButton />
         </div>
       </header>
-      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-4 py-6 sm:px-6">{children}</main>
-      <nav className="sticky bottom-0 z-20 grid grid-cols-3 border-t border-border bg-card md:hidden">
+      <OfflineBar />
+      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-4 py-6 pb-24 sm:px-6 md:pb-6">{children}</main>
+      <nav className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-4 border-t border-border bg-card pb-[env(safe-area-inset-bottom)] md:hidden">
         {NAV.map((item) => {
           const Icon = item.icon;
           const active = item.exact ? pathname === item.to : pathname.startsWith(item.to);
@@ -90,6 +92,16 @@ export function PortalShell({ actor, children }: { actor: Actor; children: React
             </Link>
           );
         })}
+        <Link
+          to="/get-app"
+          className={cn(
+            "flex min-h-12 flex-col items-center justify-center gap-0.5 text-[11px]",
+            pathname.startsWith("/get-app") ? "text-foreground" : "text-muted-foreground",
+          )}
+        >
+          <Smartphone className="size-4" />
+          Install
+        </Link>
       </nav>
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent side="left" className="p-4">
@@ -105,6 +117,9 @@ export function PortalShell({ actor, children }: { actor: Actor; children: React
                 {item.label}
               </Link>
             ))}
+            <Link to="/get-app" onClick={() => setOpen(false)} className="rounded-lg px-3 py-2.5 text-sm hover:bg-accent">
+              Phone & offline
+            </Link>
           </nav>
         </SheetContent>
       </Sheet>

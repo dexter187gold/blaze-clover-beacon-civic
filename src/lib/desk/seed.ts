@@ -3,6 +3,7 @@ type Sql = {
     strings: TemplateStringsArray,
     ...values: unknown[]
   ): Promise<T[]>;
+  query: <T = Record<string, unknown>>(text: string, params?: unknown[]) => Promise<T[]>;
 };
 
 export async function seedDesk(

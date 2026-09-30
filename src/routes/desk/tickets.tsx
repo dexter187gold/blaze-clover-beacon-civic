@@ -1,6 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { toast } from "sonner";
+import { Plus } from "lucide-react";
 import { listTickets, listClients, createTicket } from "@/lib/desk/server";
 import { TicketRow, EmptyTickets } from "@/components/ticket-list";
 import { Button } from "@/components/ui/button";
@@ -9,9 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { CHANNELS, PRIORITIES, STATUSES } from "@/lib/desk/types";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
-import { Plus } from "lucide-react";
+import { runOrQueue } from "@/lib/offline";
 
 export const Route = createFileRoute("/desk/tickets")({ component: TicketsPage });
 
@@ -45,7 +45,7 @@ function TicketsPage() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Filter"
-          className="h-9 w-36"
+          className="h-11 w-36 sm:h-9"
         />
         <Button size="sm" onClick={() => setOpen(true)}>
           <Plus className="size-4" />
@@ -78,7 +78,7 @@ function Filter({
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="h-9 rounded-md border border-input bg-background px-2 text-sm"
+      className="h-11 rounded-md border border-input bg-background px-2 text-sm sm:h-9"
     >
       {options.map((o) => (
         <option key={o} value={o}>
@@ -105,20 +105,38 @@ function NewTicketDialog({
   const qc = useQueryClient();
   const create = useMutation({
     mutationFn: () =>
-      createTicket({
-        data: {
-          clientId: Number(clientId),
-          subject,
-          body,
-          priority,
-          channel: "web",
+      runOrQueue(
+        {
+          type: "createTicket",
+          payload: {
+            clientId: Number(clientId),
+            subject,
+            body,
+            priority,
+            channel: "web",
+          },
         },
-      }),
+        () =>
+          createTicket({
+            data: {
+              clientId: Number(clientId),
+              subject,
+              body,
+              priority,
+              channel: "web",
+            },
+          }),
+        { id: -1, number: 0 },
+      ),
     onSuccess: (res) => {
       void qc.invalidateQueries();
       onOpenChange(false);
       setSubject("");
       setBody("");
+      if ("queued" in res && res.queued) {
+        toast.message("Ticket saved on this phone. It will open on the desk when you’re back online.");
+        return;
+      }
       void navigate({ to: "/desk/tickets/$ticketId", params: { ticketId: String(res.id) } });
     },
   });
@@ -138,7 +156,7 @@ function NewTicketDialog({
           <div className="space-y-1.5">
             <Label>Client</Label>
             <select
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+              className="h-11 w-full rounded-md border border-input bg-background px-3 text-sm"
               value={clientId}
               onChange={(e) => setClientId(e.target.value ? Number(e.target.value) : "")}
               required
@@ -158,7 +176,7 @@ function NewTicketDialog({
           <div className="space-y-1.5">
             <Label>Priority</Label>
             <select
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+              className="h-11 w-full rounded-md border border-input bg-background px-3 text-sm"
               value={priority}
               onChange={(e) => setPriority(e.target.value as typeof priority)}
             >

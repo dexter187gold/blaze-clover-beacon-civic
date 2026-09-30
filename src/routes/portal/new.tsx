@@ -1,12 +1,14 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { toast } from "sonner";
 import { createTicket } from "@/lib/desk/server";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { PRIORITIES } from "@/lib/desk/types";
+import { runOrQueue } from "@/lib/offline";
 
 export const Route = createFileRoute("/portal/new")({ component: NewPortalTicket });
 
@@ -18,9 +20,18 @@ function NewPortalTicket() {
   const qc = useQueryClient();
   const create = useMutation({
     mutationFn: () =>
-      createTicket({ data: { subject, body, priority, channel: "portal" } }),
+      runOrQueue(
+        { type: "createTicket", payload: { subject, body, priority, channel: "portal" } },
+        () => createTicket({ data: { subject, body, priority, channel: "portal" } }),
+        { id: -1, number: 0 },
+      ),
     onSuccess: (res) => {
       void qc.invalidateQueries();
+      if ("queued" in res && res.queued) {
+        toast.message("Saved on this phone. We’ll open it on the desk when you’re back online.");
+        void navigate({ to: "/portal/tickets" });
+        return;
+      }
       void navigate({ to: "/portal/tickets/$ticketId", params: { ticketId: String(res.id) } });
     },
   });
@@ -43,7 +54,7 @@ function NewPortalTicket() {
         <div className="space-y-1.5">
           <Label>Priority</Label>
           <select
-            className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+            className="h-11 w-full rounded-md border border-input bg-background px-3 text-sm"
             value={priority}
             onChange={(e) => setPriority(e.target.value as typeof priority)}
           >

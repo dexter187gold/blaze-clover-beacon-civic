@@ -1,0 +1,1 @@
+import{t as e}from"./react-DB-4Zxce.js";import{t}from"./jsx-runtime-BtH0gOTJ.js";import{n}from"./dist-BnP1DRk7.js";e();var r=t();function i({className:e,...t}){return(0,r.jsx)(`label`,{className:n(`text-xs font-medium tracking-wide text-muted-foreground`,e),...t})}export{i as t};

@@ -7,6 +7,7 @@ import {
   MessageCircle,
   Radio,
   Shield,
+  Smartphone,
   Ticket,
 } from "lucide-react";
 import { HelixWordmark } from "@/components/helix-mark";
@@ -27,11 +28,14 @@ function Home() {
 
 function Landing() {
   return (
-    <div className="min-h-dvh bg-background text-foreground">
+    <div className="min-h-dvh overflow-x-hidden bg-background text-foreground">
       <header className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
         <HelixWordmark />
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" asChild>
+          <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex">
+            <Link to="/get-app">Phone & offline</Link>
+          </Button>
+          <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex">
             <Link to="/login">Sign in</Link>
           </Button>
           <Button size="sm" asChild>
@@ -60,7 +64,10 @@ function Landing() {
             </Link>
           </Button>
           <Button size="lg" variant="outline" asChild>
-            <Link to="/login">Client portal sign in</Link>
+            <Link to="/get-app">
+              <Smartphone className="size-4" />
+              Get it on your phone
+            </Link>
           </Button>
         </div>
       </section>
@@ -114,7 +121,7 @@ function Landing() {
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-6xl gap-4 px-4 pb-20 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
+      <section className="mx-auto grid max-w-6xl gap-4 px-4 pb-20 sm:grid-cols-2 sm:px-6 lg:grid-cols-3">
         <Feature
           icon={<Ticket className="size-4" />}
           title="Unified ticketing"
@@ -129,6 +136,11 @@ function Landing() {
           icon={<Radio className="size-4" />}
           title="WhatsApp & Facebook"
           body="Inbound from Meta channels becomes a ticket. Reply from the desk. Webhooks ready for your Business API."
+        />
+        <Feature
+          icon={<Smartphone className="size-4" />}
+          title="Phone & offline"
+          body="Install from Chrome on Android or Windows. Prime the device once, then open tickets in the field with no signal."
         />
         <Feature
           icon={<Shield className="size-4" />}
@@ -171,7 +183,7 @@ function Landing() {
           <HelixWordmark />
           <p className="flex items-center gap-2">
             <Globe className="size-3.5" />
-            Browser, WhatsApp, Facebook — install Helix on Windows from Chrome.
+            Browser, WhatsApp, Facebook — install Helix on Android or Windows from Chrome.
           </p>
           <p className="flex items-center gap-2">
             <MessageCircle className="size-3.5" />

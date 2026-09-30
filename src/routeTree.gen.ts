@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DeskRouteImport } from './routes/desk'
+import { Route as GetAppRouteImport } from './routes/get-app'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as PortalRouteImport } from './routes/portal'
 import { Route as DeskIndexRouteImport } from './routes/desk/index'
@@ -39,6 +40,11 @@ const IndexRoute = IndexRouteImport.update({
 const DeskRoute = DeskRouteImport.update({
   id: '/desk',
   path: '/desk',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GetAppRoute = GetAppRouteImport.update({
+  id: '/get-app',
+  path: '/get-app',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -140,6 +146,7 @@ const PortalTicketsTicketIdRoute = PortalTicketsTicketIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/desk': typeof DeskRouteWithChildren
+  '/get-app': typeof GetAppRoute
   '/login': typeof LoginRoute
   '/portal': typeof PortalRouteWithChildren
   '/desk/channels': typeof DeskChannelsRoute
@@ -162,6 +169,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/get-app': typeof GetAppRoute
   '/login': typeof LoginRoute
   '/desk/channels': typeof DeskChannelsRoute
   '/desk/clients': typeof DeskClientsRouteWithChildren
@@ -185,6 +193,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/desk': typeof DeskRouteWithChildren
+  '/get-app': typeof GetAppRoute
   '/login': typeof LoginRoute
   '/portal': typeof PortalRouteWithChildren
   '/desk/channels': typeof DeskChannelsRoute
@@ -210,6 +219,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/desk'
+    | '/get-app'
     | '/login'
     | '/portal'
     | '/desk/channels'
@@ -232,6 +242,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/get-app'
     | '/login'
     | '/desk/channels'
     | '/desk/clients'
@@ -254,6 +265,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/desk'
+    | '/get-app'
     | '/login'
     | '/portal'
     | '/desk/channels'
@@ -278,6 +290,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DeskRoute: typeof DeskRouteWithChildren
+  GetAppRoute: typeof GetAppRoute
   LoginRoute: typeof LoginRoute
   PortalRoute: typeof PortalRouteWithChildren
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -299,6 +312,13 @@ declare module '@tanstack/react-router' {
       path: '/desk'
       fullPath: '/desk'
       preLoaderRoute: typeof DeskRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/get-app': {
+      id: '/get-app'
+      path: '/get-app'
+      fullPath: '/get-app'
+      preLoaderRoute: typeof GetAppRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -515,6 +535,7 @@ const PortalRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DeskRoute: DeskRouteWithChildren,
+  GetAppRoute: GetAppRoute,
   LoginRoute: LoginRoute,
   PortalRoute: PortalRouteWithChildren,
   ApiAuthSplatRoute: ApiAuthSplatRoute,

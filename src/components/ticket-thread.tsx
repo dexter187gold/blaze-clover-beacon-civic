@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { MessageSquare, Lock } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ChannelPill, PriorityPill, StatusPill } from "@/components/status-pills";
 import { replyTicket } from "@/lib/desk/server";
-import type { TicketDetail } from "@/lib/desk/types";
+import type { TicketDetail, TicketMessage } from "@/lib/desk/types";
 import { cn, formatWhen, initials } from "@/lib/utils";
+import { runOrQueue } from "@/lib/offline";
 
 export function TicketThread({
   ticket,
@@ -18,19 +20,42 @@ export function TicketThread({
   const qc = useQueryClient();
   const [body, setBody] = useState("");
   const [internal, setInternal] = useState(false);
+  const [pending, setPending] = useState<TicketMessage[]>([]);
   const reply = useMutation({
     mutationFn: () =>
-      replyTicket({ data: { ticketId: ticket.id, body, isInternal: mode === "staff" && internal } }),
-    onSuccess: () => {
+      runOrQueue(
+        { type: "reply", payload: { ticketId: ticket.id, body, isInternal: mode === "staff" && internal } },
+        () => replyTicket({ data: { ticketId: ticket.id, body, isInternal: mode === "staff" && internal } }),
+        { ok: true },
+      ),
+    onSuccess: (res) => {
+      const queued = "queued" in res && res.queued;
+      if (queued) {
+        setPending((list) => [
+          ...list,
+          {
+            id: Date.now(),
+            authorType: mode === "staff" ? "agent" : "client",
+            authorName: "You",
+            body,
+            isInternal: mode === "staff" && internal,
+            channel: ticket.channel,
+            createdAt: new Date().toISOString(),
+          },
+        ]);
+        toast.message("Saved on this device. It will send when you’re back online.");
+      }
       setBody("");
       void qc.invalidateQueries();
     },
   });
 
+  const messages = [...ticket.messages, ...pending];
+
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-5 sm:px-6">
-        {ticket.messages.map((m) => {
+        {messages.map((m) => {
           const system = m.authorType === "system";
           const agent = m.authorType === "agent";
           return (
@@ -65,9 +90,7 @@ export function TicketThread({
                     <div
                       className={cn(
                         "rounded-xl border px-3.5 py-2.5 text-sm leading-relaxed",
-                        m.isInternal
-                          ? "border-pending/30 bg-pending/8"
-                          : "border-border bg-card",
+                        m.isInternal ? "border-pending/30 bg-pending/8" : "border-border bg-card",
                       )}
                     >
                       {m.body}
@@ -78,7 +101,7 @@ export function TicketThread({
             </div>
           );
         })}
-        {ticket.messages.length === 0 && (
+        {messages.length === 0 && (
           <div className="flex flex-1 flex-col items-center justify-center gap-2 py-16 text-muted-foreground">
             <MessageSquare className="size-6" />
             <p className="text-sm">No messages yet.</p>
@@ -103,7 +126,7 @@ export function TicketThread({
         <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             {mode === "staff" && (
-              <label className="flex items-center gap-2 text-xs text-muted-foreground">
+              <label className="flex min-h-11 items-center gap-2 text-xs text-muted-foreground">
                 <input
                   type="checkbox"
                   checked={internal}
@@ -113,17 +136,13 @@ export function TicketThread({
                 Internal note
               </label>
             )}
-            <span className="hidden text-xs text-muted-foreground sm:inline">
-              Replying on {ticket.channel}
-            </span>
+            <span className="hidden text-xs text-muted-foreground sm:inline">Replying on {ticket.channel}</span>
           </div>
           <Button type="submit" disabled={reply.isPending || !body.trim()} size="sm">
             {reply.isPending ? "Sending…" : internal ? "Add note" : "Send reply"}
           </Button>
         </div>
-        {reply.isError && (
-          <p className="mt-2 text-xs text-destructive">Could not send. Try again.</p>
-        )}
+        {reply.isError && <p className="mt-2 text-xs text-destructive">Could not send. Try again.</p>}
       </form>
     </div>
   );

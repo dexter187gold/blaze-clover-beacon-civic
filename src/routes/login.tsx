@@ -187,6 +187,13 @@ function Login() {
         >
           {emailMode === "up" ? "Have an account? Sign in" : "Need an account? Create one"}
         </button>
+        <p className="mt-6 text-sm text-muted-foreground">
+          Testing on a phone?{" "}
+          <Link to="/get-app" className="text-foreground underline-offset-4 hover:underline">
+            Install Helix and go offline
+          </Link>
+          .
+        </p>
       </div>
     </main>
   );

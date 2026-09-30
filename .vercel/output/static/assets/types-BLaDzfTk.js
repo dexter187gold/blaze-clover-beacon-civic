@@ -1,0 +1,1 @@
+var e=[`open`,`pending`,`waiting`,`resolved`,`closed`],t=[`low`,`medium`,`high`,`urgent`],n=[`web`,`portal`,`email`,`whatsapp`,`facebook`],r=[`managed`,`break-fix`,`project`,`sla-gold`];export{e as i,r as n,t as r,n as t};

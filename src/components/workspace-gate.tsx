@@ -5,7 +5,7 @@ import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { bootstrapDesk } from "@/lib/desk/server";
 import type { Actor } from "@/lib/desk/types";
 import { Skeleton } from "@/components/ui/skeleton";
-
+import { loadActor, saveActor } from "@/lib/offline";
 
 export function WorkspaceGate({
   children,
@@ -36,13 +36,27 @@ export function WorkspaceGate({
       .then((res) => {
         if (cancelled) return;
         if (!res.ok) {
+          const cached = loadActor();
+          if (cached) {
+            setActor(cached);
+            return;
+          }
           setError(res.error);
           return;
         }
-        setActor(res.actor);
+        if (res.actor) {
+          saveActor(res.actor);
+          setActor(res.actor);
+        }
       })
       .catch(() => {
-        if (!cancelled) setError("Could not open your desk.");
+        if (cancelled) return;
+        const cached = loadActor();
+        if (cached) {
+          setActor(cached);
+          return;
+        }
+        setError("Could not open your desk.");
       });
     return () => {
       cancelled = true;
@@ -60,7 +74,6 @@ export function WorkspaceGate({
   }
   if (!actor) return <ShellSkeleton />;
   if (expect && actor.kind !== expect && !(expect === "client" && actor.kind === "staff")) {
-    // staff may preview client portal; clients cannot enter staff desk
     if (expect === "staff" && actor.kind === "client") {
       return <Navigate to="/portal" />;
     }

@@ -10,6 +10,8 @@ import { STATUSES, PRIORITIES } from "@/lib/desk/types";
 import { formatWhen, slaLabel, ticketRef, initials } from "@/lib/utils";
 import { useState } from "react";
 import { PanelRight } from "lucide-react";
+import { toast } from "sonner";
+import { runOrQueue } from "@/lib/offline";
 
 export const Route = createFileRoute("/desk/tickets/$ticketId")({
   component: TicketDetailPage,
@@ -33,8 +35,17 @@ function TicketDetailPage() {
   const t = ticket.data;
   const mutate = useMutation({
     mutationFn: (patch: { status?: string; priority?: string; assignee?: string }) =>
-      updateTicket({ data: { id, ...patch } }),
-    onSuccess: () => void qc.invalidateQueries(),
+      runOrQueue(
+        { type: "updateTicket", payload: { id, ...patch } },
+        () => updateTicket({ data: { id, ...patch } }),
+        { ok: true },
+      ),
+    onSuccess: (res) => {
+      if ("queued" in res && res.queued) {
+        toast.message("Change saved on this device. It will sync when you’re online.");
+      }
+      void qc.invalidateQueries();
+    },
   });
 
   if (ticket.isPending) {
